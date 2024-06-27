@@ -9,7 +9,7 @@ export class Location {
   place_id: string;
 
   @Prop()
-  lat: number;
+  lat: string;
 
   @Prop()
   lng: string;
