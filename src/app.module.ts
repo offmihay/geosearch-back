@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost:27017/geosearch'),
+    MongooseModule.forRoot(process.env.MONGODB_URL),
     MongooseModule.forFeature([
       { name: Location.name, schema: LocationSchema },
     ]),
