@@ -15,8 +15,7 @@ export class AppController {
   }
 
   @Post('/locations')
-  async createLocation(@Body() location: any) {
-    console.log(location);
+  async createLocation(@Body() location: Location[]) {
     return await this.locationModel.create(location);
   }
 }
