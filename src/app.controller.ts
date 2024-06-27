@@ -5,9 +5,9 @@ export class AppController {
   constructor() {}
 
   @Get('/locations')
-  getHello() {
+  getLocations() {
     return {
-      name: 'Vitaliy',
+      id: 'qwe',
     };
   }
 }
