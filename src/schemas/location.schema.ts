@@ -9,10 +9,10 @@ export class Location {
   place_id: string;
 
   @Prop()
-  lat: string;
+  lat: number;
 
   @Prop()
-  lng: string;
+  lng: number;
 
   @Prop()
   business_status: string;
