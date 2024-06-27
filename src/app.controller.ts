@@ -15,7 +15,15 @@ export class AppController {
   }
 
   @Post('/locations')
-  async createLocation(@Body() location: Location[]) {
-    return await this.locationModel.create(location);
+  async createLocation(@Body() locations: Location[]) {
+    const operations = locations.map((location) => ({
+      updateOne: {
+        filter: { place_id: location.place_id },
+        update: { $set: location },
+        upsert: true,
+      },
+    }));
+
+    return await this.locationModel.bulkWrite(operations);
   }
 }

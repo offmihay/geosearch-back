@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Location, LocationSchema } from './schemas/location.schema';
+import mongoose from 'mongoose';
 
 @Module({
   imports: [
@@ -12,4 +13,8 @@ import { Location, LocationSchema } from './schemas/location.schema';
   ],
   controllers: [AppController],
 })
-export class AppModule {}
+export class AppModule {
+  constructor() {
+    mongoose.set('debug', true);
+  }
+}
