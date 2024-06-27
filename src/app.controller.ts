@@ -11,7 +11,8 @@ export class AppController {
 
   @Get('/locations')
   getLocations() {
-    return this.locationModel.find().exec();
+    const query = this.locationModel.find();
+    return query.exec();
   }
 
   @Post('/locations')
