@@ -38,11 +38,11 @@ export class Place {
   @Prop({ default: Date.now })
   created_at: Date;
 
-  @Prop()
-  done_at: string;
+  // @Prop()
+  // done_at: string;
 
-  @Prop()
-  done_by_user: string;
+  // @Prop()
+  // done_by_user: string;
 }
 
 export const PlaceSchema = SchemaFactory.createForClass(Place);
