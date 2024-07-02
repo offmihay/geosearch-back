@@ -68,7 +68,7 @@ export class AppController {
   async updatePlaceStatus(
     @Body('place_id') placeId: string,
     @Body('place_status')
-    placeStatus: 'TO_DO' | 'DONE' | 'PROGRESSING' | 'NOT_EXIST' | 'CLOSED',
+    placeStatus: 'TO_DO' | 'DONE' | 'PROGRESSING' | 'NOT_EXIST',
   ) {
     const place = await this.PlaceModel.findOne({ place_id: placeId }).exec();
     if (!place) {
@@ -111,11 +111,15 @@ export class AppController {
           place_id: { $in: route.places_id_set },
         }).exec();
         const totalPlaces = places.length;
+        const doneNotExistPlaces = places.filter(
+          (place) =>
+            place.place_status === 'DONE' || place.place_status === 'NOT_EXIST',
+        ).length;
         const donePlaces = places.filter(
           (place) => place.place_status === 'DONE',
         ).length;
         const routeStatusPercentage =
-          totalPlaces > 0 ? (donePlaces / totalPlaces) * 100 : 0;
+          totalPlaces > 0 ? (doneNotExistPlaces / totalPlaces) * 100 : 0;
 
         // Set is_active to false if routeStatusPercentage is 100
         if (routeStatusPercentage === 100) {
@@ -126,6 +130,7 @@ export class AppController {
         return {
           ...route.toObject(),
           route_status_percentage: routeStatusPercentage.toFixed(0),
+          routes_done: donePlaces,
         };
       }),
     );
@@ -212,5 +217,25 @@ export class AppController {
     }
 
     return { isEmpty: true };
+  }
+
+  @Post('/places/update-status-by-phone')
+  async updatePlaceStatusByPhone(
+    @Body('phone_numbers') phoneNumbers: string[],
+  ) {
+    const places = await this.PlaceModel.find({
+      national_phone_number: { $in: phoneNumbers },
+    }).exec();
+
+    const updatedPlaces = await Promise.all(
+      places.map(async (place) => {
+        place.place_status = 'DONE';
+        place.done_at = new Date();
+        await place.save();
+        return place;
+      }),
+    );
+
+    return { success: true, updatedPlaces };
   }
 }

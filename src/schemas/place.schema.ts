@@ -33,7 +33,7 @@ export class Place {
   display_name: string;
 
   @Prop({ default: 'TO_DO' })
-  place_status: 'TO_DO' | 'DONE' | 'PROGRESSING' | 'NOT_EXIST' | 'CLOSED';
+  place_status: 'TO_DO' | 'DONE' | 'PROGRESSING' | 'NOT_EXIST';
 
   @Prop({ default: Date.now })
   created_at: Date;
