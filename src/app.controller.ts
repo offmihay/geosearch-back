@@ -64,6 +64,35 @@ export class AppController {
     }
   }
 
+  @Post('/places/update-status')
+  async updatePlaceStatus(
+    @Body('place_id') placeId: string,
+    @Body('place_status')
+    placeStatus: 'TO_DO' | 'DONE' | 'PROGRESSING' | 'NOT_EXIST' | 'CLOSED',
+  ) {
+    const place = await this.PlaceModel.findOne({ place_id: placeId }).exec();
+    if (!place) {
+      throw new BadRequestException(
+        `Place with place_id ${placeId} not found.`,
+      );
+    }
+
+    place.place_status = placeStatus;
+
+    if (placeStatus !== 'PROGRESSING' && placeStatus !== 'TO_DO') {
+      place.done_at = new Date();
+    } else {
+      place.done_at = null;
+    }
+
+    try {
+      await place.save();
+      return { success: true, place };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }
+
   @Delete('/places/:id')
   async deletePlace(@Param('id') id: string) {
     const result = await this.PlaceModel.findByIdAndDelete(id).exec();
@@ -87,6 +116,13 @@ export class AppController {
         ).length;
         const routeStatusPercentage =
           totalPlaces > 0 ? (donePlaces / totalPlaces) * 100 : 0;
+
+        // Set is_active to false if routeStatusPercentage is 100
+        if (routeStatusPercentage === 100) {
+          route.is_active = false;
+          await route.save(); // Save the updated route to the database
+        }
+
         return {
           ...route.toObject(),
           route_status_percentage: routeStatusPercentage.toFixed(0),
@@ -95,6 +131,7 @@ export class AppController {
     );
     return routesWithStatus;
   }
+
   @Post('/routes')
   async createRoute(@Body() routeData: Route | Route[]) {
     const routes = Array.isArray(routeData) ? routeData : [routeData];
