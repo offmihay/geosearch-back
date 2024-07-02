@@ -33,13 +33,13 @@ export class Place {
   display_name: string;
 
   @Prop({ default: 'TO_DO' })
-  place_status: 'TO_DO' | 'DONE' | 'PROCESSING' | 'NOT_EXIST';
+  place_status: 'TO_DO' | 'DONE' | 'PROGRESSING' | 'NOT_EXIST';
 
   @Prop({ default: Date.now })
   created_at: Date;
 
-  // @Prop()
-  // done_at: string;
+  @Prop()
+  done_at: Date;
 
   // @Prop()
   // done_by_user: string;

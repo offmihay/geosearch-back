@@ -14,6 +14,12 @@ export class Route {
   @Prop()
   img_url: string;
 
+  @Prop()
+  route_status_percentage: string;
+
+  @Prop({ default: true })
+  is_active: boolean;
+
   @Prop({ default: Date.now })
   created_at: Date;
 }

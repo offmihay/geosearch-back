@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -135,5 +136,44 @@ export class AppController {
       throw new BadRequestException(`Route with ID ${id} not found.`);
     }
     return { message: 'Route deleted successfully' };
+  }
+
+  @Post('/routes/:id/deactivate')
+  async deactivateRoute(@Param('id') id: string) {
+    const route = await this.RouteModel.findById(id).exec();
+    if (!route) {
+      throw new BadRequestException(`Route with ID ${id} not found.`);
+    }
+
+    route.is_active = false;
+    await route.save();
+
+    await this.PlaceModel.updateMany(
+      { place_id: { $in: route.places_id_set }, place_status: 'PROGRESSING' },
+      { $set: { place_status: 'TO_DO' } },
+    );
+
+    return { message: 'Route deactivated and places updated successfully' };
+  }
+
+  @Get('/routes/:id/curr-place')
+  async getCurrPlace(@Param('id') id: string) {
+    const route = await this.RouteModel.findById(id).exec();
+    if (!route) {
+      throw new BadRequestException(`Route with ID ${id} not found.`);
+    }
+
+    for (const placeId of route.places_id_set) {
+      const place = await this.PlaceModel.findOne({
+        place_id: placeId,
+        place_status: 'PROGRESSING',
+      }).exec();
+
+      if (place) {
+        return { isEmpty: false, place };
+      }
+    }
+
+    return { isEmpty: true };
   }
 }
