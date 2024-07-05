@@ -227,6 +227,13 @@ export class AppController {
       national_phone_number: { $in: phoneNumbers },
     }).exec();
 
+    const foundPhoneNumbers = places.map(
+      (place) => place.national_phone_number,
+    );
+    const notFoundPhoneNumbers = phoneNumbers.filter(
+      (phone) => !foundPhoneNumbers.includes(phone),
+    );
+
     const updatedPlaces = await Promise.all(
       places.map(async (place) => {
         place.place_status = 'DONE';
@@ -236,6 +243,6 @@ export class AppController {
       }),
     );
 
-    return { success: true, updatedPlaces };
+    return { success: true, updatedPlaces, notFoundPhoneNumbers };
   }
 }
