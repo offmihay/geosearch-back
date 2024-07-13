@@ -5,7 +5,6 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';

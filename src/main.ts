@@ -8,7 +8,7 @@ import { json, urlencoded } from 'body-parser'; // Import body-parser directly
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
-    bodyParser: false, // Disable the default body parser
+    bodyParser: false,
   });
 
   app.use(json({ limit: '50mb' }));
