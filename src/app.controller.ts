@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Place, PlaceDocument } from './schemas/place.schema';
+import { Place, PlaceDocument, PlaceStatus } from './schemas/place.schema';
 import { Route, RouteDocument } from './schemas/route.schema';
 
 @Controller()
@@ -67,7 +67,7 @@ export class AppController {
   async updatePlaceStatus(
     @Body('place_id') placeId: string,
     @Body('place_status')
-    placeStatus: 'TO_DO' | 'DONE' | 'PROGRESSING' | 'NOT_EXIST',
+    placeStatus: PlaceStatus,
   ) {
     const place = await this.PlaceModel.findOne({ place_id: placeId }).exec();
     if (!place) {
@@ -216,32 +216,5 @@ export class AppController {
     }
 
     return { isEmpty: true };
-  }
-
-  @Post('/places/update-status-by-phone')
-  async updatePlaceStatusByPhone(
-    @Body('phone_numbers') phoneNumbers: string[],
-  ) {
-    const places = await this.PlaceModel.find({
-      national_phone_number: { $in: phoneNumbers },
-    }).exec();
-
-    const foundPhoneNumbers = places.map(
-      (place) => place.national_phone_number,
-    );
-    const notFoundPhoneNumbers = phoneNumbers.filter(
-      (phone) => !foundPhoneNumbers.includes(phone),
-    );
-
-    const updatedPlaces = await Promise.all(
-      places.map(async (place) => {
-        place.place_status = 'DONE';
-        place.done_at = new Date();
-        await place.save();
-        return place;
-      }),
-    );
-
-    return { success: true, updatedPlaces, notFoundPhoneNumbers };
   }
 }
