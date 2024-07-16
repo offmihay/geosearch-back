@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import { ConfigModule } from '@nestjs/config';
 import { RouteModule } from './route/route.module';
 import { PlaceModule } from './place/place.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { PlaceModule } from './place/place.module';
     MongooseModule.forRoot(process.env.MONGODB_URL),
     RouteModule,
     PlaceModule,
+    AuthModule,
   ],
   controllers: [AppController],
 })

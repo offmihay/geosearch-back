@@ -3,11 +3,13 @@ import { RouteController } from './route.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Route, RouteSchema } from './schemas/route.schema';
 import { PlaceModule } from '../place/place.module';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Route.name, schema: RouteSchema }]),
     PlaceModule,
+    AuthModule,
   ],
   controllers: [RouteController],
 })

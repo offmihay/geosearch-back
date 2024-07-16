@@ -6,12 +6,15 @@ import {
   Get,
   Param,
   Post,
+  UseGuards,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Place, PlaceDocument, PlaceStatus } from './schemas/place.schema';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('places')
+@UseGuards(AuthGuard())
 export class PlaceController {
   constructor(
     @InjectModel(Place.name) private PlaceModel: Model<PlaceDocument>,
