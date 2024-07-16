@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
-import { Place, PlaceSchema } from './schemas/place.schema';
-import { Route, RouteSchema } from './schemas/route.schema';
 import { ConfigModule } from '@nestjs/config';
+import { RouteModule } from './route/route.module';
+import { PlaceModule } from './place/place.module';
 
 @Module({
   imports: [
@@ -13,8 +13,8 @@ import { ConfigModule } from '@nestjs/config';
       isGlobal: true,
     }),
     MongooseModule.forRoot(process.env.MONGODB_URL),
-    MongooseModule.forFeature([{ name: Place.name, schema: PlaceSchema }]),
-    MongooseModule.forFeature([{ name: Route.name, schema: RouteSchema }]),
+    RouteModule,
+    PlaceModule,
   ],
   controllers: [AppController],
 })
