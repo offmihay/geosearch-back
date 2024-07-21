@@ -1,13 +1,12 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-
-export enum UserPermission {
-  DEFAULT = 'default',
-  ADMIN = 'admin',
-  SUPERADMIN = 'superadmin',
-}
+import { Role } from '../enum/role.enum';
+import { Region } from 'src/route/enum/region.enum';
 
 @Schema({
-  timestamps: true,
+  timestamps: {
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+  },
 })
 export class User {
   @Prop({ unique: [true, 'Username has already existed!'] })
@@ -16,8 +15,11 @@ export class User {
   @Prop()
   password: string;
 
-  @Prop({ default: UserPermission.DEFAULT })
-  role: UserPermission;
+  @Prop({ default: [Role.User] })
+  roles: Role[];
+
+  @Prop({ default: [Region.Kyiv] })
+  regions: Region[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

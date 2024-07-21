@@ -1,9 +1,15 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
+import { User } from 'src/auth/schemas/user.schema';
 
 export type RouteDocument = HydratedDocument<Route>;
 
-@Schema()
+@Schema({
+  timestamps: {
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+  },
+})
 export class Route {
   @Prop()
   name: string;
@@ -20,8 +26,8 @@ export class Route {
   @Prop({ default: true })
   is_active: boolean;
 
-  @Prop({ default: Date.now })
-  created_at: Date;
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  user: User;
 }
 
 export const RouteSchema = SchemaFactory.createForClass(Route);

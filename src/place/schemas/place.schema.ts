@@ -9,7 +9,12 @@ export enum PlaceStatus {
   PROGRESSING = 'PROGRESSING',
   NOT_EXIST = 'NOT_EXIST',
 }
-@Schema()
+@Schema({
+  timestamps: {
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
+  },
+})
 export class Place {
   @Prop()
   place_id: string;
@@ -33,6 +38,9 @@ export class Place {
   city: string;
 
   @Prop()
+  region: string;
+
+  @Prop()
   national_phone_number: string;
 
   @Prop()
@@ -41,14 +49,8 @@ export class Place {
   @Prop({ default: 'TO_DO' })
   place_status: PlaceStatus;
 
-  @Prop({ default: Date.now })
-  created_at: Date;
-
   @Prop()
   done_at: Date;
-
-  // @Prop()
-  // done_by_user: string;
 }
 
 export const PlaceSchema = SchemaFactory.createForClass(Place);

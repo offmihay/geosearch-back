@@ -3,6 +3,7 @@ import { PlaceController } from './place.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Place, PlaceSchema } from './schemas/place.schema';
 import { AuthModule } from '../auth/auth.module';
+import { PlaceService } from './place.service';
 
 @Module({
   imports: [
@@ -11,5 +12,6 @@ import { AuthModule } from '../auth/auth.module';
   ],
   controllers: [PlaceController],
   exports: [MongooseModule],
+  providers: [PlaceService],
 })
 export class PlaceModule {}

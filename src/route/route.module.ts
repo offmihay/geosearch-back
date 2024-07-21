@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Route, RouteSchema } from './schemas/route.schema';
 import { PlaceModule } from '../place/place.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { RouteService } from './route.service';
 
 @Module({
   imports: [
@@ -12,5 +13,6 @@ import { AuthModule } from 'src/auth/auth.module';
     AuthModule,
   ],
   controllers: [RouteController],
+  providers: [RouteService],
 })
 export class RouteModule {}
