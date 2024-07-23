@@ -46,7 +46,7 @@ export class RouteController {
     return this.routeService.deleteRoute(id);
   }
 
-  // @UseGuards(CheckRouteUserGuard)
+  @UseGuards(CheckRouteUserGuard)
   @Patch(':id/deactivate')
   async deactivateRoute(@Param('id') id: string) {
     return this.routeService.deactivateRoute(id);

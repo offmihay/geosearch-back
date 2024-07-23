@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Role } from '../enum/role.enum';
-import { Region } from 'src/route/enum/region.enum';
+import { Regions } from 'src/route/enum/regions.enum';
+import { PreferencesSchema, Preferences } from './user.preferences.schema';
 
 @Schema({
   timestamps: {
@@ -18,8 +19,8 @@ export class User {
   @Prop({ default: [Role.User] })
   roles: Role[];
 
-  @Prop({ default: [Region.Kyiv] })
-  regions: Region[];
+  @Prop({ type: PreferencesSchema, default: {} })
+  preferences: Preferences;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -14,6 +14,7 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { PlaceService } from './place.service';
 import { Place, PlaceStatus } from './schemas/place.schema';
+import { User } from 'src/auth/schemas/user.schema';
 
 @Controller('places')
 @UseGuards(AuthGuard(), RolesGuard)
@@ -22,7 +23,8 @@ export class PlaceController {
 
   @Get()
   async getPlaces(@Req() req) {
-    return this.placeService.getPlaces(req.user.regions);
+    const user = req.user as User;
+    return this.placeService.getPlaces(user.preferences.regions);
   }
 
   @Get(':place_id')

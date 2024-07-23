@@ -2,7 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Place, PlaceDocument, PlaceStatus } from './schemas/place.schema';
-import { Region } from 'src/route/enum/region.enum';
+import { Regions } from 'src/route/enum/regions.enum';
 
 @Injectable()
 export class PlaceService {
@@ -10,7 +10,7 @@ export class PlaceService {
     @InjectModel(Place.name) private placeModel: Model<PlaceDocument>,
   ) {}
 
-  async getPlaces(regions: Region[]) {
+  async getPlaces(regions: Regions[]) {
     try {
       return await this.placeModel
         .find(

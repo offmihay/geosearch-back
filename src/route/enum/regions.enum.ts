@@ -1,4 +1,4 @@
-export enum Region {
+export enum Regions {
   Cherkasy = 'Cherkasy',
   Chernihiv = 'Chernihiv',
   Chernivtsi = 'Chernivtsi',

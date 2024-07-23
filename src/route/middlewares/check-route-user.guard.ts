@@ -17,25 +17,31 @@ export class CheckRouteUserGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const routeId = request.params.id;
-    const userId = request.user._id;
+    const roles = request.user.roles;
 
-    if (!isValidObjectId(routeId)) {
-      throw new BadRequestException(`Invalid route ID: ${routeId}`);
+    if (['admin'].some((role) => roles?.includes(role))) {
+      return true;
+    } else {
+      const routeId = request.params.id;
+      const userId = request.user._id;
+
+      if (!isValidObjectId(routeId)) {
+        throw new BadRequestException(`Invalid route ID: ${routeId}`);
+      }
+
+      const route = await this.routeModel.findById(routeId).exec();
+
+      if (!route) {
+        throw new BadRequestException(`Route with ID ${routeId} not found.`);
+      }
+
+      if (route.user.toString() !== userId.toString()) {
+        throw new UnauthorizedException(
+          'You are not authorized to access this route',
+        );
+      }
+
+      return true;
     }
-
-    const route = await this.routeModel.findById(routeId).exec();
-
-    if (!route) {
-      throw new BadRequestException(`Route with ID ${routeId} not found.`);
-    }
-
-    if (route.user.toString() !== userId.toString()) {
-      throw new UnauthorizedException(
-        'You are not authorized to access this route',
-      );
-    }
-
-    return true;
   }
 }
