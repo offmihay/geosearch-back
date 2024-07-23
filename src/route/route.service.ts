@@ -12,8 +12,7 @@ export class RouteService {
     @InjectModel(Route.name) private routeModel: Model<RouteDocument>,
   ) {}
 
-  async getRoutes(userId?: User) {
-    const filter = userId ? { user: userId } : {};
+  async getRoutes(filter: {} | { user: mongoose.Types.ObjectId }) {
     const routes = await this.routeModel.find(filter).exec();
     const routesWithStatus = await Promise.all(
       routes.map(async (route) => {

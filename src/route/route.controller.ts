@@ -27,12 +27,15 @@ export class RouteController {
   @Roles(Role.Admin)
   @Get('all')
   async getRoutes() {
-    return this.routeService.getRoutes();
+    const filter = {};
+    return this.routeService.getRoutes(filter);
   }
 
   @Get()
   async getUserRoutes(@Req() req) {
-    return this.routeService.getRoutes(req.user._id);
+    const user: User = req.user;
+    const filter = user.preferences.show_all_routes ? {} : { user: user._id };
+    return this.routeService.getRoutes(filter);
   }
 
   @Post()

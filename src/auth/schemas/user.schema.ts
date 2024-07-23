@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Role } from '../enum/role.enum';
-import { Regions } from 'src/route/enum/regions.enum';
 import { PreferencesSchema, Preferences } from './user.preferences.schema';
+import mongoose from 'mongoose';
 
 @Schema({
   timestamps: {
@@ -10,6 +10,8 @@ import { PreferencesSchema, Preferences } from './user.preferences.schema';
   },
 })
 export class User {
+  _id: mongoose.Types.ObjectId;
+
   @Prop({ unique: [true, 'Username has already existed!'] })
   username: string;
 
