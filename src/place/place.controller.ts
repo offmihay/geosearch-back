@@ -14,7 +14,7 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { PlaceService } from './place.service';
 import { Place, PlaceStatus } from './schemas/place.schema';
-import { User } from 'src/auth/schemas/user.schema';
+import { User } from 'src/user/schemas/user.schema';
 
 @Controller('places')
 @UseGuards(AuthGuard(), RolesGuard)

@@ -16,7 +16,7 @@ import { Role } from 'src/auth/enum/role.enum';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RouteService } from './route.service';
 import { Route } from './schemas/route.schema';
-import { User } from 'src/auth/schemas/user.schema';
+import { User } from 'src/user/schemas/user.schema';
 import { CheckRouteUserGuard } from './middlewares/check-route-user.guard';
 
 @Controller('routes')

@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Role } from '../enum/role.enum';
+import { Role } from '../../auth/enum/role.enum';
 import { PreferencesSchema, Preferences } from './user.preferences.schema';
 import mongoose from 'mongoose';
 

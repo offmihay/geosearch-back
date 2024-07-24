@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model } from 'mongoose';
 import { Route, RouteDocument } from './schemas/route.schema';
 import { Place, PlaceDocument } from 'src/place/schemas/place.schema';
-import { User } from 'src/auth/schemas/user.schema';
+import { User } from 'src/user/schemas/user.schema';
 
 @Injectable()
 export class RouteService {

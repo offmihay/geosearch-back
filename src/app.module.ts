@@ -6,6 +6,7 @@ import { ConfigModule } from '@nestjs/config';
 import { RouteModule } from './route/route.module';
 import { PlaceModule } from './place/place.module';
 import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AuthModule } from './auth/auth.module';
     RouteModule,
     PlaceModule,
     AuthModule,
+    UserModule,
   ],
   controllers: [AppController],
 })
