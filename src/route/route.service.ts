@@ -48,7 +48,7 @@ export class RouteService {
     return routesWithStatus;
   }
 
-  async createRoute(routeData: Route | Route[], userId: User) {
+  async createRoute(routeData: Route | Route[], user: User) {
     const routes = Array.isArray(routeData) ? routeData : [routeData];
 
     // Validate that no place has place_status set to 'DONE'
@@ -70,7 +70,7 @@ export class RouteService {
 
     // Create new routes
     const newRoutes = routes.map((route) => {
-      route.user = userId;
+      route.user = user;
       return new this.routeModel(route);
     });
     const result = await this.routeModel.insertMany(newRoutes);
@@ -79,7 +79,7 @@ export class RouteService {
     for (const route of routes) {
       await this.placeModel.updateMany(
         { place_id: { $in: route.places_id_set } },
-        { $set: { place_status: 'PROGRESSING' } },
+        { $set: { place_status: 'PROGRESSING', user } },
       );
     }
 
@@ -87,10 +87,18 @@ export class RouteService {
   }
 
   async deleteRoute(id: string) {
-    const result = await this.routeModel.findByIdAndDelete(id).exec();
-    if (!result) {
+    const route = await this.routeModel.findById(id).exec();
+    if (!route) {
       throw new BadRequestException(`Route with ID ${id} not found.`);
     }
+
+    await this.placeModel.updateMany(
+      { place_id: { $in: route.places_id_set }, place_status: 'PROGRESSING' },
+      { $set: { place_status: 'TO_DO' } },
+    );
+
+    await route.deleteOne();
+
     return { message: 'Route deleted successfully' };
   }
 
@@ -125,10 +133,5 @@ export class RouteService {
     }
 
     return { isEmpty: true };
-  }
-
-  async getAllImgUrls(): Promise<string[]> {
-    const routes = await this.routeModel.find({}).exec();
-    return routes.map((route) => route.img_url);
   }
 }

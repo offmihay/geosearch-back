@@ -7,7 +7,7 @@ export class Preferences {
   regions: Regions[];
 
   @Prop({ default: false })
-  show_all_routes: boolean;
+  show_done_places: boolean;
 }
 
 export const PreferencesSchema = SchemaFactory.createForClass(Preferences);

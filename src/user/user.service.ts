@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { User } from './schemas/user.schema';
 import { Regions } from 'src/route/enum/regions.enum';
 import { PreferencesDto } from './dto/preferences.dto';
+import { AdminPreferencesDto } from './dto/admin-preferences.dto';
 
 @Injectable()
 export class UserService {
@@ -23,8 +24,29 @@ export class UserService {
     };
   }
 
+  async getAdminPreferences(user: User) {
+    const userModel = await this.userModel.findOne({ _id: user._id }).exec();
+    const preferences = userModel.admin_preferences || {};
+    return {
+      preferences,
+    };
+  }
+
   async postPreferences(user: User, preferencesDto: PreferencesDto) {
-    await this.userModel.updateOne({ _id: user._id }, preferencesDto);
+    console.log(preferencesDto);
+    await this.userModel.updateOne(
+      { _id: user._id },
+      { $set: { preferences: preferencesDto.preferences } },
+    );
+    return { message: 'Updated successfully', data: preferencesDto };
+  }
+
+  async postAdminPreferences(user: User, preferencesDto: AdminPreferencesDto) {
+    console.log(preferencesDto);
+    await this.userModel.updateOne(
+      { _id: user._id },
+      { $set: { admin_preferences: preferencesDto.preferences } },
+    );
     return { message: 'Updated successfully', data: preferencesDto };
   }
 }

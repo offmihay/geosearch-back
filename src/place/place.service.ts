@@ -2,7 +2,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Place, PlaceDocument, PlaceStatus } from './schemas/place.schema';
-import { Regions } from 'src/route/enum/regions.enum';
+import { User } from 'src/user/schemas/user.schema';
 
 @Injectable()
 export class PlaceService {
@@ -10,11 +10,18 @@ export class PlaceService {
     @InjectModel(Place.name) private placeModel: Model<PlaceDocument>,
   ) {}
 
-  async getPlaces(regions: Regions[]) {
+  async getPlaces(user: User) {
+    const placeStatus_filter = user.preferences.show_done_places
+      ? Object.keys(PlaceStatus)
+      : [PlaceStatus.TO_DO];
     try {
       return await this.placeModel
         .find(
-          { business_status: 'OPERATIONAL', region: { $in: regions } },
+          {
+            business_status: 'OPERATIONAL',
+            region: { $in: user.preferences.regions },
+            place_status: { $in: placeStatus_filter },
+          },
           'place_id lat lng place_status',
         )
         .exec();
@@ -51,7 +58,11 @@ export class PlaceService {
     }
   }
 
-  async updatePlaceStatus(placeId: string, placeStatus: PlaceStatus) {
+  async updatePlaceStatus(
+    placeId: string,
+    placeStatus: PlaceStatus,
+    user: User,
+  ) {
     const place = await this.placeModel.findOne({ place_id: placeId }).exec();
     if (!place) {
       throw new BadRequestException(
@@ -63,6 +74,7 @@ export class PlaceService {
 
     if (placeStatus !== 'PROGRESSING' && placeStatus !== 'TO_DO') {
       place.done_at = new Date();
+      place.user_done = user;
     } else {
       place.done_at = null;
     }

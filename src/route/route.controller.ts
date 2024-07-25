@@ -34,13 +34,15 @@ export class RouteController {
   @Get()
   async getUserRoutes(@Req() req) {
     const user: User = req.user;
-    const filter = user.preferences.show_all_routes ? {} : { user: user._id };
+    const filter = user.admin_preferences.show_all_routes
+      ? {}
+      : { user: user._id };
     return this.routeService.getRoutes(filter);
   }
 
   @Post()
   async createRoute(@Body() routeData: Route | Route[], @Req() req) {
-    return this.routeService.createRoute(routeData, req.user._id);
+    return this.routeService.createRoute(routeData, req.user);
   }
 
   @Roles(Role.Admin)
@@ -59,10 +61,5 @@ export class RouteController {
   @Get(':id/curr-place')
   async getCurrPlace(@Param('id') id: string) {
     return this.routeService.getCurrPlace(id);
-  }
-
-  @Get('img-urls')
-  async getImgUrls(): Promise<string[]> {
-    return this.routeService.getAllImgUrls();
   }
 }

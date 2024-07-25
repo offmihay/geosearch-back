@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
+import { User } from 'src/user/schemas/user.schema';
 
 export type PlaceDocument = HydratedDocument<Place>;
 
@@ -51,6 +52,12 @@ export class Place {
 
   @Prop()
   done_at: Date;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  user: User;
+
+  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
+  user_done: User;
 }
 
 export const PlaceSchema = SchemaFactory.createForClass(Place);

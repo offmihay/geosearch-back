@@ -2,6 +2,10 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Role } from '../../auth/enum/role.enum';
 import { PreferencesSchema, Preferences } from './user.preferences.schema';
 import mongoose from 'mongoose';
+import {
+  AdminPreferences,
+  AdminPreferencesSchema,
+} from './user.admin-preferences.schema';
 
 @Schema({
   timestamps: {
@@ -23,6 +27,9 @@ export class User {
 
   @Prop({ type: PreferencesSchema, default: {} })
   preferences: Preferences;
+
+  @Prop({ type: AdminPreferencesSchema, default: {} })
+  admin_preferences: AdminPreferences;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

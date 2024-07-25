@@ -24,7 +24,7 @@ export class PlaceController {
   @Get()
   async getPlaces(@Req() req) {
     const user = req.user as User;
-    return this.placeService.getPlaces(user.preferences.regions);
+    return this.placeService.getPlaces(user);
   }
 
   @Get(':place_id')
@@ -32,6 +32,7 @@ export class PlaceController {
     return this.placeService.getPlaceById(placeId);
   }
 
+  @Roles(Role.Admin)
   @Post()
   async createPlace(@Body() placesData: Place | Place[]) {
     return this.placeService.createPlace(placesData);
@@ -39,12 +40,15 @@ export class PlaceController {
 
   @Post('/update-status')
   async updatePlaceStatus(
+    @Req() req,
     @Body('place_id') placeId: string,
     @Body('place_status') placeStatus: PlaceStatus,
   ) {
-    return this.placeService.updatePlaceStatus(placeId, placeStatus);
+    const user = req.user as User;
+    return this.placeService.updatePlaceStatus(placeId, placeStatus, user);
   }
 
+  @Roles(Role.Admin)
   @Delete(':id')
   async deletePlace(@Param('id') id: string) {
     return this.placeService.deletePlace(id);
