@@ -30,6 +30,53 @@ export class PlaceService {
     }
   }
 
+  async getDonePlaces(user: User) {
+    const matchStage = {
+      place_status: { $in: [PlaceStatus.DONE, PlaceStatus.NOT_EXIST] },
+    };
+
+    if (!user.admin_preferences.show_all_places) {
+      matchStage['user_done'] = user._id;
+    }
+
+    return await this.placeModel
+      .aggregate([
+        {
+          $match: matchStage,
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'user',
+            foreignField: '_id',
+            as: 'user_info',
+          },
+        },
+        { $unwind: '$user_info' },
+        {
+          $project: {
+            place_id: 1,
+            display_name: 1,
+            done_at: 1,
+            google_maps_URI: 1,
+            city: 1,
+            username: '$user_info.username',
+            place_status: 1,
+            updated_at: 1,
+          },
+        },
+      ])
+      .exec();
+  }
+
+  async patchPlace(id: string, placeData: Place) {
+    const place = await this.placeModel.findByIdAndUpdate(id, placeData).exec();
+    if (!place) {
+      throw new BadRequestException(`Place with id ${id} not found.`);
+    }
+    return await this.placeModel.findById(id);
+  }
+
   async getPlaceById(placeId: string) {
     const place = await this.placeModel.findOne({ place_id: placeId }).exec();
     if (!place) {
@@ -72,16 +119,22 @@ export class PlaceService {
 
     place.place_status = placeStatus;
 
-    if (placeStatus !== 'PROGRESSING' && placeStatus !== 'TO_DO') {
+    if (placeStatus == 'DONE' || placeStatus == 'NOT_EXIST') {
       place.done_at = new Date();
       place.user_done = user;
-    } else {
-      place.done_at = null;
     }
-
+    if (placeStatus == 'SKIP') {
+      if (place.skipped_count) {
+        place.skipped_count++;
+      } else {
+        place.skipped_count = 1;
+      }
+    } else {
+      place.skipped_count = 0;
+    }
     try {
       await place.save();
-      return place;
+      return await this.placeModel.findOne({ place_id: placeId }).exec();
     } catch (error) {
       throw new BadRequestException(error.message);
     }

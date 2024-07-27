@@ -1,9 +1,12 @@
 import { Type } from 'class-transformer';
-import { IsBoolean, IsEnum, IsNotEmpty, ValidateNested } from 'class-validator';
+import { IsBoolean, IsNotEmpty, ValidateNested } from 'class-validator';
 
 class PreferencesDetailsDto {
   @IsBoolean()
   show_all_routes: boolean;
+
+  @IsBoolean()
+  show_all_places: boolean;
 }
 
 export class AdminPreferencesDto {

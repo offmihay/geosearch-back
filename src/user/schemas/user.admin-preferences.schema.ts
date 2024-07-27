@@ -5,6 +5,9 @@ import { Regions } from 'src/route/enum/regions.enum';
 export class AdminPreferences {
   @Prop({ default: false })
   show_all_routes: boolean;
+
+  @Prop({ default: false })
+  show_all_places: boolean;
 }
 
 export const AdminPreferencesSchema =

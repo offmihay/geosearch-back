@@ -9,6 +9,7 @@ export enum PlaceStatus {
   DONE = 'DONE',
   PROGRESSING = 'PROGRESSING',
   NOT_EXIST = 'NOT_EXIST',
+  SKIP = 'SKIP',
 }
 @Schema({
   timestamps: {
@@ -17,6 +18,8 @@ export enum PlaceStatus {
   },
 })
 export class Place {
+  _id: mongoose.Types.ObjectId;
+
   @Prop()
   place_id: string;
 
@@ -58,6 +61,9 @@ export class Place {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   user_done: User;
+
+  @Prop({ default: 0 })
+  skipped_count: number;
 }
 
 export const PlaceSchema = SchemaFactory.createForClass(Place);

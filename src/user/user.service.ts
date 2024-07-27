@@ -33,7 +33,6 @@ export class UserService {
   }
 
   async postPreferences(user: User, preferencesDto: PreferencesDto) {
-    console.log(preferencesDto);
     await this.userModel.updateOne(
       { _id: user._id },
       { $set: { preferences: preferencesDto.preferences } },
@@ -42,7 +41,6 @@ export class UserService {
   }
 
   async postAdminPreferences(user: User, preferencesDto: AdminPreferencesDto) {
-    console.log(preferencesDto);
     await this.userModel.updateOne(
       { _id: user._id },
       { $set: { admin_preferences: preferencesDto.preferences } },

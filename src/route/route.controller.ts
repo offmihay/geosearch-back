@@ -15,23 +15,16 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Role } from 'src/auth/enum/role.enum';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RouteService } from './route.service';
-import { Route } from './schemas/route.schema';
 import { User } from 'src/user/schemas/user.schema';
 import { CheckRouteUserGuard } from './middlewares/check-route-user.guard';
+import { CreateRouteDto } from './dto/create-route.dto';
 
 @Controller('routes')
 @UseGuards(AuthGuard(), RolesGuard)
 export class RouteController {
   constructor(private readonly routeService: RouteService) {}
 
-  @Roles(Role.Admin)
-  @Get('all')
-  async getRoutes() {
-    const filter = {};
-    return this.routeService.getRoutes(filter);
-  }
-
-  @Get()
+  @Get('')
   async getUserRoutes(@Req() req) {
     const user: User = req.user;
     const filter = user.admin_preferences.show_all_routes
@@ -41,7 +34,7 @@ export class RouteController {
   }
 
   @Post()
-  async createRoute(@Body() routeData: Route | Route[], @Req() req) {
+  async createRoute(@Body() routeData: CreateRouteDto, @Req() req) {
     return this.routeService.createRoute(routeData, req.user);
   }
 

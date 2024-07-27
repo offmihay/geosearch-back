@@ -4,6 +4,7 @@ import mongoose, { Model } from 'mongoose';
 import { Route, RouteDocument } from './schemas/route.schema';
 import { Place, PlaceDocument } from 'src/place/schemas/place.schema';
 import { User } from 'src/user/schemas/user.schema';
+import { CreateRouteDto } from './dto/create-route.dto';
 
 @Injectable()
 export class RouteService {
@@ -21,6 +22,7 @@ export class RouteService {
             place_id: { $in: route.places_id_set },
           })
           .exec();
+
         const totalPlaces = places.length;
         const doneNotExistPlaces = places.filter(
           (place) =>
@@ -48,42 +50,40 @@ export class RouteService {
     return routesWithStatus;
   }
 
-  async createRoute(routeData: Route | Route[], user: User) {
-    const routes = Array.isArray(routeData) ? routeData : [routeData];
-
+  async createRoute(routeData: CreateRouteDto, user: User) {
     // Validate that no place has place_status set to 'DONE'
-    for (const route of routes) {
-      const places = await this.placeModel
-        .find({
-          place_id: { $in: route.places_id_set },
-        })
-        .exec();
-      const invalidPlaces = places.filter(
-        (place) => place.place_status === 'DONE',
-      );
-      if (invalidPlaces.length > 0) {
-        throw new BadRequestException(
-          `Places with IDs ${invalidPlaces.map((place) => place.place_id).join(', ')} have a status of DONE and cannot be used.`,
-        );
-      }
-    }
-
-    // Create new routes
-    const newRoutes = routes.map((route) => {
-      route.user = user;
-      return new this.routeModel(route);
+    const places = await this.placeModel.find({
+      place_id: { $in: routeData.places_id_set },
     });
-    const result = await this.routeModel.insertMany(newRoutes);
-
-    // Update place_status to PROGRESSING for the places in places_id_set
-    for (const route of routes) {
-      await this.placeModel.updateMany(
-        { place_id: { $in: route.places_id_set } },
-        { $set: { place_status: 'PROGRESSING', user } },
+    const invalidPlaces = places.filter(
+      (place) => place.place_status === 'DONE',
+    );
+    if (invalidPlaces.length > 0) {
+      throw new BadRequestException(
+        `Places with IDs ${invalidPlaces.map((place) => place.place_id).join(', ')} have a status of DONE and cannot be used.`,
       );
     }
 
-    return result;
+    const route = new this.routeModel({
+      name: routeData.name,
+      img_url: routeData.img_url,
+      user: user._id,
+      places_id_set: routeData.places_id_set,
+    });
+
+    route.save();
+
+    await this.placeModel.updateMany(
+      { place_id: { $in: route.places_id_set } },
+      {
+        $set: {
+          place_status: 'PROGRESSING',
+          user: user._id,
+        },
+      },
+    );
+
+    return route;
   }
 
   async deleteRoute(id: string) {
@@ -93,8 +93,11 @@ export class RouteService {
     }
 
     await this.placeModel.updateMany(
-      { place_id: { $in: route.places_id_set }, place_status: 'PROGRESSING' },
-      { $set: { place_status: 'TO_DO' } },
+      {
+        place_id: { $in: route.places_id_set },
+        place_status: { $in: ['PROGRESSING', 'SKIP'] },
+      },
+      { $set: { place_status: 'TO_DO', user: undefined, skipped_count: 0 } },
     );
 
     await route.deleteOne();
@@ -109,8 +112,11 @@ export class RouteService {
     await route.save();
 
     await this.placeModel.updateMany(
-      { place_id: { $in: route.places_id_set }, place_status: 'PROGRESSING' },
-      { $set: { place_status: 'TO_DO' } },
+      {
+        place_id: { $in: route.places_id_set },
+        place_status: { $in: ['PROGRESSING', 'SKIP'] },
+      },
+      { $set: { place_status: 'TO_DO', user: null, skipped_count: 0 } },
     );
 
     return { message: 'Route deactivated and places updated successfully' };
@@ -119,17 +125,43 @@ export class RouteService {
   async getCurrPlace(id: string) {
     const route = await this.routeModel.findById(id).exec();
 
-    for (const placeId of route.places_id_set) {
-      const place = await this.placeModel
-        .findOne({
-          place_id: placeId,
-          place_status: 'PROGRESSING',
-        })
-        .exec();
+    const placesProgressing = await this.placeModel
+      .find({
+        place_id: { $in: route.places_id_set },
+        place_status: { $in: ['PROGRESSING'] },
+      })
+      .exec();
 
-      if (place) {
-        return { isEmpty: false, place };
-      }
+    const placeMapProgressing = new Map();
+    placesProgressing.forEach((place) => {
+      placeMapProgressing.set(place.place_id, place);
+    });
+    const sortedPlacesProgressing = route.places_id_set
+      .map((placeId) => placeMapProgressing.get(placeId))
+      .filter((place) => place !== undefined);
+
+    const placesSkip = await this.placeModel
+      .find({
+        place_id: { $in: route.places_id_set },
+        place_status: { $in: ['SKIP'] },
+      })
+      .exec();
+
+    const placeMapSkip = new Map();
+    placesSkip.forEach((place) => {
+      placeMapSkip.set(place.place_id, place);
+    });
+    const sortedPlacesSkip = route.places_id_set
+      .map((placeId) => placeMapSkip.get(placeId))
+      .filter((place) => place !== undefined);
+
+    if (sortedPlacesProgressing.length != 0) {
+      return { isEmpty: false, place: sortedPlacesProgressing[0] };
+    } else if (sortedPlacesSkip.length != 1) {
+      const smallestSkipCountPlace = sortedPlacesSkip.reduce((min, current) => {
+        return current.skipped_count < min.skipped_count ? current : min;
+      });
+      return { isEmpty: false, place: smallestSkipCountPlace };
     }
 
     return { isEmpty: true };

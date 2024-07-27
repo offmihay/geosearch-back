@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -25,6 +26,17 @@ export class PlaceController {
   async getPlaces(@Req() req) {
     const user = req.user as User;
     return this.placeService.getPlaces(user);
+  }
+
+  @Get('/done')
+  async getDonePlaces(@Req() req) {
+    const user = req.user as User;
+    return this.placeService.getDonePlaces(user);
+  }
+
+  @Patch(':id')
+  async patchPlace(@Param('id') id: string, @Body() placeData: Place) {
+    return this.placeService.patchPlace(id, placeData);
   }
 
   @Get(':place_id')
