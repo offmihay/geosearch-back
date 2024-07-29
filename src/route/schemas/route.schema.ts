@@ -28,6 +28,12 @@ export class Route {
 
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User' })
   user: User;
+
+  @Prop()
+  route_status_percentage: string;
+
+  @Prop()
+  routes_done: number;
 }
 
 export const RouteSchema = SchemaFactory.createForClass(Route);

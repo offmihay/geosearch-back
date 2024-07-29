@@ -17,34 +17,38 @@ export class RouteService {
     const routes = await this.routeModel.find(filter).exec();
     const routesWithStatus = await Promise.all(
       routes.map(async (route) => {
-        const places = await this.placeModel
-          .find({
-            place_id: { $in: route.places_id_set },
-          })
-          .exec();
+        if (route.is_active) {
+          const places = await this.placeModel
+            .find({
+              place_id: { $in: route.places_id_set },
+            })
+            .exec();
 
-        const totalPlaces = places.length;
-        const doneNotExistPlaces = places.filter(
-          (place) =>
-            place.place_status === 'DONE' || place.place_status === 'NOT_EXIST',
-        ).length;
-        const donePlaces = places.filter(
-          (place) => place.place_status === 'DONE',
-        ).length;
-        const routeStatusPercentage =
-          totalPlaces > 0 ? (doneNotExistPlaces / totalPlaces) * 100 : 0;
+          const totalPlaces = places.length;
+          const doneNotExistPlaces = places.filter(
+            (place) =>
+              place.place_status === 'DONE' ||
+              place.place_status === 'NOT_EXIST',
+          ).length;
+          const donePlaces = places.filter(
+            (place) => place.place_status === 'DONE',
+          ).length;
+          const routeStatusPercentage =
+            totalPlaces > 0 ? (doneNotExistPlaces / totalPlaces) * 100 : 0;
 
-        // Set is_active to false if routeStatusPercentage is 100
-        if (routeStatusPercentage === 100) {
-          route.is_active = false;
-          await route.save(); // Save the updated route to the database
+          route.route_status_percentage = routeStatusPercentage.toFixed(0);
+          route.routes_done = donePlaces;
+
+          // Set is_active to false if routeStatusPercentage is 100
+          if (routeStatusPercentage === 100) {
+            route.is_active = false;
+          }
+
+          await route.save();
+          return route;
+        } else {
+          return route;
         }
-
-        return {
-          ...route.toObject(),
-          route_status_percentage: routeStatusPercentage.toFixed(0),
-          routes_done: donePlaces,
-        };
       }),
     );
     return routesWithStatus;
