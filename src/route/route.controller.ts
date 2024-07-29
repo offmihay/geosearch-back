@@ -24,7 +24,7 @@ import { CreateRouteDto } from './dto/create-route.dto';
 export class RouteController {
   constructor(private readonly routeService: RouteService) {}
 
-  @Get('')
+  @Get()
   async getUserRoutes(@Req() req) {
     const user: User = req.user;
     const filter = user.admin_preferences.show_all_routes
@@ -38,7 +38,7 @@ export class RouteController {
     return this.routeService.createRoute(routeData, req.user);
   }
 
-  @Roles(Role.Admin)
+  @UseGuards(CheckRouteUserGuard)
   @Delete(':id')
   async deleteRoute(@Param('id') id: string) {
     return this.routeService.deleteRoute(id);
