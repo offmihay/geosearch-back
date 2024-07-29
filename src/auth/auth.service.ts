@@ -10,7 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { LoginDto } from './dto/login.dto';
 import { SignUpDto } from './dto/signup.dto';
 import * as bcrypt from 'bcryptjs';
-import { error } from 'console';
+import { Role } from './enum/role.enum';
 
 @Injectable()
 export class AuthService {
@@ -43,7 +43,7 @@ export class AuthService {
     return { token };
   }
 
-  async login(loginDto: LoginDto): Promise<{ token: string }> {
+  async login(loginDto: LoginDto): Promise<{ token: string; roles: Role[] }> {
     const { username, password } = loginDto;
 
     const user = await this.userModel.findOne({ username });
@@ -59,7 +59,8 @@ export class AuthService {
     }
 
     const token = this.jwtService.sign({ id: user._id });
+    const roles = user.roles;
 
-    return { token };
+    return { token, roles };
   }
 }
