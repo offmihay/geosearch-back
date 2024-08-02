@@ -34,6 +34,12 @@ export class PlaceController {
     return this.placeService.getDonePlaces(user);
   }
 
+  @Roles(Role.Admin)
+  @Post('/stats')
+  async getStats(@Body() body: { daterange: [Date, Date] }) {
+    return this.placeService.getStats(body.daterange);
+  }
+
   @Patch(':id')
   async patchPlace(@Param('id') id: string, @Body() placeData: Place) {
     return this.placeService.patchPlace(id, placeData);

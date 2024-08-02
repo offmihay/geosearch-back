@@ -69,6 +69,55 @@ export class PlaceService {
       .exec();
   }
 
+  async getStats(daterange: [Date, Date]) {
+    console.log(daterange);
+    const matchStage = {
+      place_status: { $in: [PlaceStatus.DONE, PlaceStatus.NOT_EXIST] },
+      done_at: { $gte: new Date(daterange[0]), $lt: new Date(daterange[1]) },
+    };
+
+    const values = await this.placeModel
+      .aggregate([
+        {
+          $match: matchStage,
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'user',
+            foreignField: '_id',
+            as: 'user_info',
+          },
+        },
+        { $unwind: '$user_info' },
+        {
+          $project: {
+            place_id: 1,
+            username: '$user_info.username',
+            place_status: 1,
+          },
+        },
+      ])
+      .exec();
+
+    const result = Object.values(
+      values.reduce((acc, { username, place_status }) => {
+        if (!acc[username]) {
+          acc[username] = { username, not_exist: 0, done: 0, total: 0 };
+        }
+        acc[username].total += 1;
+        if (place_status === 'DONE') {
+          acc[username].done += 1;
+        } else if (place_status === 'NOT_EXIST') {
+          acc[username].not_exist += 1;
+        }
+        return acc;
+      }, {}),
+    );
+
+    return result;
+  }
+
   async patchPlace(id: string, placeData: Place) {
     const place = await this.placeModel.findByIdAndUpdate(id, placeData).exec();
     if (!place) {
