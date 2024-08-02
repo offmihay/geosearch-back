@@ -173,17 +173,18 @@ export class RouteService {
         .map((placeId) => placeMapSkip.get(placeId))
         .filter((place) => place !== undefined);
 
+      console.log(sortedPlacesSkip);
       if (sortedPlacesProgressing.length != 0) {
         return { isEmpty: false, place: sortedPlacesProgressing[0] };
-      } else if (sortedPlacesSkip.length != 0) {
+      } else if (sortedPlacesSkip.length != 1 && sortedPlacesSkip.length != 0) {
         const smallestSkipCountPlace = sortedPlacesSkip.reduce(
           (min, current) => {
             return current.skipped_count < min.skipped_count ? current : min;
           },
         );
-        if (sortedPlacesSkip.length == 1) {
-          return { isEmpty: false, place: smallestSkipCountPlace };
-        }
+        return { isEmpty: false, place: smallestSkipCountPlace };
+      } else if (sortedPlacesSkip.length == 1) {
+        return { isEmpty: false, place: sortedPlacesSkip[0] };
       }
 
       return { isEmpty: true };
