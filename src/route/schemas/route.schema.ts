@@ -34,6 +34,9 @@ export class Route {
 
   @Prop()
   routes_done: number;
+
+  @Prop()
+  deleted: Date;
 }
 
 export const RouteSchema = SchemaFactory.createForClass(Route);

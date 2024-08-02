@@ -21,7 +21,7 @@ export class AuthService {
   ) {}
 
   async signUp(signUpDto: SignUpDto): Promise<{ token: string }> {
-    const { username, password } = signUpDto;
+    const { username, password, preferences } = signUpDto;
 
     const existingUser = await this.userModel.findOne({ username });
 
@@ -36,6 +36,7 @@ export class AuthService {
     const user = await this.userModel.create({
       username,
       password: hashedPassword,
+      preferences,
     });
 
     const token = this.jwtService.sign({ id: user._id });

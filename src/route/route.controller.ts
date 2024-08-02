@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -52,7 +53,15 @@ export class RouteController {
 
   @UseGuards(CheckRouteUserGuard)
   @Get(':id/curr-place')
-  async getCurrPlace(@Param('id') id: string) {
-    return this.routeService.getCurrPlace(id);
+  async getCurrPlace(
+    @Param('id') id: string,
+    @Query() query: { nearest: boolean; lat: number; lng: number },
+  ) {
+    return this.routeService.getCurrPlace(
+      id,
+      query.nearest,
+      query.lat,
+      query.lng,
+    );
   }
 }

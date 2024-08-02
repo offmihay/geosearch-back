@@ -11,6 +11,18 @@ export enum PlaceStatus {
   NOT_EXIST = 'NOT_EXIST',
   SKIP = 'SKIP',
 }
+
+const LocationSchema = new mongoose.Schema({
+  type: {
+    type: String,
+    enum: ['Point'],
+    required: true,
+  },
+  coordinates: {
+    type: [Number],
+    required: true,
+  },
+});
 @Schema({
   timestamps: {
     createdAt: 'created_at',
@@ -28,6 +40,12 @@ export class Place {
 
   @Prop()
   lng: number;
+
+  @Prop({ type: LocationSchema, required: true })
+  location: {
+    type: string;
+    coordinates: [number, number];
+  };
 
   @Prop()
   formatted_address: string;
@@ -67,3 +85,4 @@ export class Place {
 }
 
 export const PlaceSchema = SchemaFactory.createForClass(Place);
+PlaceSchema.index({ location: '2dsphere' });

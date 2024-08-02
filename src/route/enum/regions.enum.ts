@@ -19,7 +19,6 @@ export enum Regions {
   Rivne = 'Rivne',
   Sumy = 'Sumy',
   Ternopil = 'Ternopil',
-  Ukraine = 'Ukraine',
   Vinnytsya = 'Vinnytsya',
   Volyn = 'Volyn',
   Zakarpattia = 'Zakarpattia',

@@ -119,11 +119,14 @@ export class PlaceService {
 
     place.place_status = placeStatus;
 
-    if (placeStatus == 'DONE' || placeStatus == 'NOT_EXIST') {
+    if (
+      placeStatus == PlaceStatus.DONE ||
+      placeStatus == PlaceStatus.NOT_EXIST
+    ) {
       place.done_at = new Date();
       place.user_done = user;
     }
-    if (placeStatus == 'SKIP') {
+    if (placeStatus == PlaceStatus.SKIP) {
       if (place.skipped_count) {
         place.skipped_count++;
       } else {
@@ -146,5 +149,20 @@ export class PlaceService {
       throw new BadRequestException(`Place with ID ${id} not found.`);
     }
     return { message: 'Place deleted successfully' };
+  }
+
+  async updateLocations() {
+    const places = await this.placeModel.find({});
+
+    for (const place of places) {
+      const { lat, lng } = place;
+      if (lat && lng) {
+        place.location = {
+          type: 'Point',
+          coordinates: [lng, lat],
+        };
+        await place.save();
+      }
+    }
   }
 }
