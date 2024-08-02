@@ -44,7 +44,9 @@ export class AuthService {
     return { token };
   }
 
-  async login(loginDto: LoginDto): Promise<{ token: string; roles: Role[] }> {
+  async login(
+    loginDto: LoginDto,
+  ): Promise<{ token: string; roles: Role[]; username: string }> {
     const { username, password } = loginDto;
 
     const user = await this.userModel.findOne({ username });
@@ -61,7 +63,8 @@ export class AuthService {
 
     const token = this.jwtService.sign({ id: user._id });
     const roles = user.roles;
+    const usernameOut = user.username;
 
-    return { token, roles };
+    return { token, roles, username: usernameOut };
   }
 }

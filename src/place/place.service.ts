@@ -84,7 +84,7 @@ export class PlaceService {
         {
           $lookup: {
             from: 'users',
-            localField: 'user',
+            localField: 'user_done',
             foreignField: '_id',
             as: 'user_info',
           },
