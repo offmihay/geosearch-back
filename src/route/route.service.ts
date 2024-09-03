@@ -19,7 +19,7 @@ export class RouteService {
 
   async getRoutes(filter: {} | { user: mongoose.Types.ObjectId }) {
     const routes = await this.routeModel
-      .find({ ...filter, deleted: undefined })
+      .find({ ...filter, deleted: undefined, is_active: true })
       .exec();
     const routesWithStatus = await Promise.all(
       routes.map(async (route) => {

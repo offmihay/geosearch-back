@@ -139,13 +139,21 @@ export class PlaceService {
   async createPlace(placesData: Place | Place[]) {
     const places = Array.isArray(placesData) ? placesData : [placesData];
 
-    const operations = places.map((place) => ({
+    const operations = places.map((place) => {
+      place["location"] =  {
+        type: 'Point',
+        coordinates: [place.lng, place.lat],
+      };
+      console.log(place)
+
+      return ({
+
       updateOne: {
         filter: { place_id: place.place_id },
         update: { $setOnInsert: place },
         upsert: true,
       },
-    }));
+    })});
 
     try {
       return await this.placeModel.bulkWrite(operations);
@@ -198,20 +206,5 @@ export class PlaceService {
       throw new BadRequestException(`Place with ID ${id} not found.`);
     }
     return { message: 'Place deleted successfully' };
-  }
-
-  async updateLocations() {
-    const places = await this.placeModel.find({});
-
-    for (const place of places) {
-      const { lat, lng } = place;
-      if (lat && lng) {
-        place.location = {
-          type: 'Point',
-          coordinates: [lng, lat],
-        };
-        await place.save();
-      }
-    }
   }
 }
